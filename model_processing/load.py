@@ -13,7 +13,7 @@ class LoadModel:
         self.r = 16
         self.alpha = 16
         self.target_mod = ["q_proj", "k_proj", "v_proj", "o_proj","gate_proj", "up_proj", "down_proj"]
-        self.dropout = 0
+        self.dropout = 0.05
 
     #load base model
     def _load_model(self):
