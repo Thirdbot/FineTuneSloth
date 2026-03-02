@@ -3,7 +3,7 @@ from typing import Union
 from datasets import Dataset, DatasetDict
 from transformers import PreTrainedTokenizerFast, TrainingArguments
 from unsloth import FastLanguageModel, is_bfloat16_supported
-from trl import SFTTrainer
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 
 class UnslothTrainer:
     def __init__(self,model:FastLanguageModel=None,
@@ -19,16 +19,16 @@ class UnslothTrainer:
 
         self.args = TrainingArguments(
             per_device_train_batch_size=2,
-            gradient_accumulation_steps=2,
+            gradient_accumulation_steps=4,
             warmup_steps=5,
-            num_train_epochs=0.1,
-            learning_rate=3e-4,
+            num_train_epochs=1.0,
+            learning_rate=5e-5,
             fp16= not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
             logging_steps=1,
             optim="adamw_8bit",
             weight_decay=0.05,
-            lr_scheduler_type='linear',
+            lr_scheduler_type='cosine',
             output_dir='./results',
             eval_strategy="steps",
             eval_steps=50,
@@ -39,6 +39,12 @@ class UnslothTrainer:
             save_total_limit=2,
 
         )
+        # self.response_template = "คำตอบที่ถูกต้องคือ: ประเภท"
+        # self.collator = DataCollatorForCompletionOnlyLM(
+        #     response_template=self.response_template,
+        #     tokenizer=tokenizer,
+        #     mlm=False,
+        # )
         self.results_path = Path(__file__).parent.parent.absolute() / "results"
 
     def train(self):
@@ -65,10 +71,11 @@ class UnslothTrainer:
                 max_seq_length=2048, #type: ignore
                 packing=False, #type: ignore
                 args=self.args,
-
+                # data_collator=self.collator,
             )
-            trainer.train(resume_from_checkpoint= False)
+            trainer.train(resume_from_checkpoint= True)
 
             return trainer.save_model(self.output_dir.as_posix())
         except Exception as e:
             print(f"Train Error:{e}")
+
