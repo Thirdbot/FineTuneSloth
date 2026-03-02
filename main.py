@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from accelerate.utils import is_peft_model
 from datasets import load_from_disk
 
 from data_processing.format import SlothDatasetBuilder

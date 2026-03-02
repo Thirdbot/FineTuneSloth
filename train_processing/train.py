@@ -65,4 +65,4 @@ class UnslothTrainer:
             args=self.args,
 
         )
-        return trainer.train(resume_from_checkpoint= False)
+        return trainer.train(resume_from_checkpoint= True)
