@@ -211,29 +211,31 @@ class ProcessDataset:
         except Exception as e:
             print(f"Error Saving Dataset: {e}")
 
-HomePath = Path(__file__).parent.parent.absolute()
-save_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
+#example single file
 
-load_dataset = LoadDataset("EXt1/Thai-True-Fake-News").get_dataset()
-process_dataset = ProcessDataset(load_dataset)
-process_dataset.select_split('train')
-
-dataset = process_dataset.get_dataset()
-print(f'before cleaning: {len(dataset)}')
-process_dataset.check_balance_native('Verification_Status')
-
-process_dataset.drop_selected(['Unnamed: 0'])
-process_dataset.clean_text(['Title','Verification_Status'])
-process_dataset.drop_null()
-process_dataset.drop_dupe(['Title'])
-cleaned_dataset = process_dataset.get_dataset()
-print(f'after cleaning: {len(cleaned_dataset)}')
-process_dataset.check_balance_native('Verification_Status')
-
-process_dataset.balance_dataset('Title','Verification_Status',
-                                'under')
-balance_dataset = process_dataset.get_dataset()
-print(f'after balancing: {len(balance_dataset)}')
-process_dataset.check_balance_native('Verification_Status')
-
-process_dataset.save_dataset(save_path.as_posix())
+# HomePath = Path(__file__).parent.parent.absolute()
+# save_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
+#
+# load_dataset = LoadDataset("EXt1/Thai-True-Fake-News").get_dataset()
+# process_dataset = ProcessDataset(load_dataset)
+# process_dataset.select_split('train')
+#
+# dataset = process_dataset.get_dataset()
+# print(f'before cleaning: {len(dataset)}')
+# process_dataset.check_balance_native('Verification_Status')
+#
+# process_dataset.drop_selected(['Unnamed: 0'])
+# process_dataset.clean_text(['Title','Verification_Status'])
+# process_dataset.drop_null()
+# process_dataset.drop_dupe(['Title'])
+# cleaned_dataset = process_dataset.get_dataset()
+# print(f'after cleaning: {len(cleaned_dataset)}')
+# process_dataset.check_balance_native('Verification_Status')
+#
+# process_dataset.balance_dataset('Title','Verification_Status',
+#                                 'under')
+# balance_dataset = process_dataset.get_dataset()
+# print(f'after balancing: {len(balance_dataset)}')
+# process_dataset.check_balance_native('Verification_Status')
+#
+# process_dataset.save_dataset(save_path.as_posix())
