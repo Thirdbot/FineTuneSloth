@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from datasets import DatasetDict,Dataset
 from collections import Counter
 
@@ -8,10 +10,12 @@ from imblearn.under_sampling import RandomUnderSampler
 
 import pandas as pd
 
+from typing import Union
+
 from load import LoadDataset
 
 class ProcessDataset:
-    def __init__(self,dataset:dict[DatasetDict,Dataset]):
+    def __init__(self,dataset:Union[DatasetDict,Dataset]):
 
         self.dataset = dataset
 
@@ -197,8 +201,18 @@ class ProcessDataset:
         except Exception as e:
             print(f"Error Balancing: {e}")
 
+    def save_dataset(self,path:str):
+        if self.dataset is None:
+            print("Dataset not found")
+            return None
+        try:
+            self.dataset.save_to_disk(path)
+            print(f"Dataset Saved to {path} Successfully")
+        except Exception as e:
+            print(f"Error Saving Dataset: {e}")
 
-
+HomePath = Path(__file__).parent.parent.absolute()
+save_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
 
 load_dataset = LoadDataset("EXt1/Thai-True-Fake-News").get_dataset()
 process_dataset = ProcessDataset(load_dataset)
@@ -221,3 +235,5 @@ process_dataset.balance_dataset('Title','Verification_Status',
 balance_dataset = process_dataset.get_dataset()
 print(f'after balancing: {len(balance_dataset)}')
 process_dataset.check_balance_native('Verification_Status')
+
+process_dataset.save_dataset(save_path.as_posix())
