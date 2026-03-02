@@ -1,2 +1,4 @@
 /environment
 /dataset
+/model_processing/unsloth_compiled_cache
+/results
