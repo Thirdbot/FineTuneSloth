@@ -21,7 +21,7 @@ class UnslothTrainer:
             per_device_train_batch_size=2,
             gradient_accumulation_steps=2,
             warmup_steps=5,
-            num_train_epochs=0.8,
+            num_train_epochs=0.5,
             learning_rate=3e-4,
             fp16= not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
@@ -66,6 +66,6 @@ class UnslothTrainer:
             args=self.args,
 
         )
-        trainer.train(resume_from_checkpoint= True)
+        trainer.train(resume_from_checkpoint= False)
 
         return trainer.save_model(self.output_dir.as_posix())
