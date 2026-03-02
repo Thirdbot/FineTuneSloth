@@ -108,7 +108,19 @@ class SlothDatasetBuilder:
         except Exception as e:
             print(f"Error Saving Dataset: {e}")
 
+    def check_max_tokens(self):
+        if self.formatted_dataset is None:
+            print("Dataset not found")
+            return None
+        if self.tokenizer is None:
+            print("Tokenizer not found")
+            return None
 
+        token_counts = [len(self.tokenizer.encode(example["text"])) for example in self.formatted_dataset]
+
+        max_tokens = max(token_counts)
+
+        return max_tokens
 
 
 # HomePath = Path(__file__).parent.parent.absolute()
