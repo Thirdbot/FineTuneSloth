@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Union
-
-from datasets import Dataset, DatasetDict, load_from_disk
+from datasets import Dataset, DatasetDict
 from transformers import PreTrainedTokenizerFast, TrainingArguments
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import SFTTrainer
@@ -17,17 +16,18 @@ class UnslothTrainer:
         self.tokenizer = tokenizer
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
+
         self.args = TrainingArguments(
             per_device_train_batch_size=2,
             gradient_accumulation_steps=2,
             warmup_steps=5,
-            num_train_epochs=0.5,
+            num_train_epochs=0.1,
             learning_rate=3e-4,
             fp16= not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
             logging_steps=1,
             optim="adamw_8bit",
-            weight_decay=0.01,
+            weight_decay=0.05,
             lr_scheduler_type='linear',
             output_dir='./results',
             eval_strategy="steps",
@@ -40,6 +40,7 @@ class UnslothTrainer:
 
         )
         self.results_path = Path(__file__).parent.parent.absolute() / "results"
+
     def train(self):
         if self.model is None:
             print("Model not found")
@@ -54,18 +55,20 @@ class UnslothTrainer:
         if self.eval_dataset is None:
             print("Eval Dataset not found")
             return None
+        try:
+            trainer = SFTTrainer(
+                model=self.model, #type: ignore
+                train_dataset=self.train_dataset,
+                eval_dataset=self.eval_dataset,
+                tokenizer=self.tokenizer, #type: ignore
+                dataset_text_field="text", #type: ignore
+                max_seq_length=2048, #type: ignore
+                packing=False, #type: ignore
+                args=self.args,
 
-        trainer = SFTTrainer(
-            model=self.model, #type: ignore
-            train_dataset=self.train_dataset,
-            eval_dataset=self.eval_dataset,
-            tokenizer=self.tokenizer, #type: ignore
-            dataset_text_field="text", #type: ignore
-            max_seq_length=2048, #type: ignore
-            packing=False, #type: ignore
-            args=self.args,
+            )
+            trainer.train(resume_from_checkpoint= False)
 
-        )
-        trainer.train(resume_from_checkpoint= False)
-
-        return trainer.save_model(self.output_dir.as_posix())
+            return trainer.save_model(self.output_dir.as_posix())
+        except Exception as e:
+            print(f"Train Error:{e}")
