@@ -32,9 +32,11 @@ builder = SlothDatasetBuilder(dataset=dataset,
 formatted = builder.format()
 # print(formatted[0])
 max_token = builder.check_max_tokens()
+max_token = 256
 
 print(f"max token: {max_token}")
-model_loader.max_length = max_token + 100
+
+model_loader.max_length = max_token
 
 builder.save_format(save_form_path.as_posix())
 
@@ -52,7 +54,11 @@ train_dataset = dataset_split['train']
 eval_dataset = dataset_split['test']
 
 
-UnslothTrainer(model=model,tokenizer=tokenizer,train_dataset=train_dataset,eval_dataset=eval_dataset).train()
+UnslothTrainer(model=model,
+               tokenizer=tokenizer,
+               train_dataset=train_dataset,
+               eval_dataset=eval_dataset,
+               ).train()
 
 #TODO
 # might need datacollation for train classication
