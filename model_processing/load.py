@@ -10,10 +10,10 @@ class LoadModel:
         self.max_length = max_token
 
         # default lora config
-        self.r = 16
-        self.alpha = 16
+        self.r = 32
+        self.alpha = 64
         self.target_mod = ["q_proj", "k_proj", "v_proj", "o_proj","gate_proj", "up_proj", "down_proj"]
-        self.dropout = 0.05
+        self.dropout = 0.1
 
     #load base model
     def _load_model(self):
