@@ -11,7 +11,7 @@ output_dir = HomePath / "output"
 model.load_adapter(output_dir)
 FastLanguageModel.for_inference(model)
 
-news_to_check = "กทม.คุมเข้มสุ่มตรวจร้านค้าสถานบริการ ปิด/ห้ามขาย"
+news_to_check = "ข่าวดี! รัฐบาลเตรียมโอนเงินเยียวยาพิเศษ 5,000 บาท เข้าบัตรสวัสดิการแห่งรัฐทุกคนในวันศุกร์นี้ ใครยังไม่ได้สิทธิ์ให้รีบคลิกลิงก์ลงทะเบียนด่วนก่อนระบบปิด"
 
 prompt = """ข้อความข่าวมีดังนี้:
 {}
@@ -21,7 +21,7 @@ prompt = """ข้อความข่าวมีดังนี้:
 ประเภท 2: ข่าวปลอม
 
 คำตอบ
-คำตอบที่ถูกต้องคือ: ประเภท  """.format(news_to_check)
+คำตอบที่ถูกต้องคือ: ประเภท """.format(news_to_check)
 
 inputs = tokenizer([prompt], return_tensors = "pt").to("cuda")
 
