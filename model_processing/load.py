@@ -4,10 +4,10 @@ from sympy import false
 from unsloth import FastLanguageModel
 
 class LoadModel:
-    def __init__(self,repo_id:str):
+    def __init__(self,repo_id:str,max_token:int=2048):
         self.repo_id = repo_id
         self.model,self.tokenizer = self._load_model()
-        self.max_length = 2048
+        self.max_length = max_token
 
         # default lora config
         self.r = 16
