@@ -1,9 +1,6 @@
 from datasets import load_dataset
 from huggingface_hub.errors import HfHubHTTPError
 from huggingface_hub.utils import RepositoryNotFoundError
-import logging
-
-### PLS PREPROCESS FOR ME
 
 class LoadDataset:
     def __init__(self,repo_id:str,split:str='default'):
@@ -31,6 +28,6 @@ class LoadDataset:
     def get_dataset(self):
         return self.ds
 
-
-loader = LoadDataset("EXt1/Thai-True-Fake-News")
-loader.get_dataset()
+# single file loading example
+# loader = LoadDataset("EXt1/Thai-True-Fake-News")
+# loader.get_dataset()
