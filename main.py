@@ -30,18 +30,23 @@ builder = SlothDatasetBuilder(dataset=dataset,
                               prompt=prompt_template,
                               selected_tokenizer=tokenizer)
 formatted = builder.format()
-print(formatted[0])
+# print(formatted[0])
+max_token = builder.check_max_tokens()
+
+print(f"max token: {max_token}")
+model_loader.max_length = max_token + 100
+
 builder.save_format(save_form_path.as_posix())
 
 build = builder.build()
-print(build[0])
+# print(build[0])
 builder.save_build(save_build_path.as_posix())
 
 # load full lora or Qlora if not Peft then create One else use one
 model,tokenizer = model_loader.get_model_lora() if model_loader.is_peft(model) else model_loader.get_model_Qlora()
 
 dataset = load_from_disk(save_form_path)
-dataset_split = dataset.train_test_split(test_size=0.1)
+dataset_split = dataset.train_test_split(test_size=0.2)
 
 train_dataset = dataset_split['train']
 eval_dataset = dataset_split['test']
