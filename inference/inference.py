@@ -11,7 +11,7 @@ output_dir = HomePath / "output"
 model.load_adapter(output_dir)
 FastLanguageModel.for_inference(model)
 
-news_to_check = "กระทรวงการคลังเตรียมแจกเงินดิจิทัลวอลเล็ต 10,000 บาท รอบเก็บตกในสัปดาห์หน้า..."
+news_to_check = "ข่าวดี! รัฐบาลเตรียมโอนเงินเยียวยาพิเศษ 5,000 บาท เข้าบัตรสวัสดิการแห่งรัฐทุกคนในวันศุกร์นี้ เพื่อช่วยลดภาระค่าครองชีพ ใครยังไม่ได้ลงทะเบียนให้รีบคลิกลิงก์ด้านล่างด่วนก่อนสิทธิ์เต็ม"
 
 prompt = """ข้อความข่าวมีดังนี้:
 {}
@@ -21,7 +21,7 @@ prompt = """ข้อความข่าวมีดังนี้:
 ประเภท 2: ข่าวปลอม
 
 คำตอบ
-คำตอบที่ถูกต้องคือ: ประเภท """.format(news_to_check)
+คำตอบที่ถูกต้องคือ: ประเภท  """.format(news_to_check)
 
 inputs = tokenizer([prompt], return_tensors = "pt").to("cuda")
 
@@ -32,6 +32,9 @@ print("--- ผลการวิเคราะห์ข่าว ---")
 _ = model.generate(
     **inputs,
     streamer = text_streamer,
-    max_new_tokens = 10, # งานนี้ต้องการแค่ตัวเลข 1 หรือ 2 เท่านั้น 10 token ก็พอครับ
-    use_cache = True
+    max_new_tokens = 5,
+    use_cache = True,
+    repetition_penalty = 1.2,
+    temperature=0.1,
+    top_p = 0.9
 )
