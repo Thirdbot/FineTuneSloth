@@ -52,4 +52,5 @@ UnslothTrainer(model=model,tokenizer=tokenizer,train_dataset=train_dataset,eval_
 #TODO
 # might need datacollation for train classication
 # might use an unsloth's dataset gpt type conversation later.
+# find best parameter with
 # new feature
