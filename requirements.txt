@@ -80,7 +80,7 @@ torchvision==0.25.0
 tqdm==4.67.3
 transformers==4.57.6
 triton==3.6.0
-trl==0.24.0
+trl==0.19.1
 typeguard==4.5.1
 typing_extensions==4.15.0
 tyro==1.0.8
