@@ -54,11 +54,12 @@ train_dataset = dataset_split['train']
 eval_dataset = dataset_split['test']
 
 
-UnslothTrainer(model=model,
+trainer_runner = UnslothTrainer(model=model,
                tokenizer=tokenizer,
                train_dataset=train_dataset,
                eval_dataset=eval_dataset,
-               ).train()
+               )
+trainer_runner.train()
 
 #TODO
 # might need datacollation for train classication
