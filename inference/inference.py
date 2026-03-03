@@ -2,7 +2,7 @@ from transformers import TextStreamer
 from unsloth import FastLanguageModel
 from pathlib import Path
 
-model,tokenizer = FastLanguageModel.from_pretrained(model_name="jojo-ai-mst/thai-opt350m-instruct",
+model,tokenizer = FastLanguageModel.from_pretrained(model_name="unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit",
                                           load_in_4bit=True,)
 HomePath = Path(__file__).parent.parent.absolute()
 
@@ -11,15 +11,18 @@ output_dir = HomePath / "output"
 model.load_adapter(output_dir)
 FastLanguageModel.for_inference(model)
 
-news_to_check = "กรมขนส่งฯ เปิดทำใบขับขี่ออนไลน์ผ่านเพจเฟซบุ๊กโดยไม่ต้องไปสอบที่สำนักงาน เพียงจ่ายค่าธรรมเนียมพิเศษ"
+news_to_check = "ครม. ตรึงค่าน้ำมันดีเซลที่ 33 บ./ลิตร ถึง 31 ต.ค. 67"
 
-prompt = """ข้อความข่าวมีดังนี้:
+prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+คุณเป็น AI ผู้เชี่ยวชาญด้านการตรวจสอบข่าวภาษาไทย กรุณาวิเคราะห์หัวข้อข่าวต่อไปนี้และตอบว่าเป็น "ข่าวจริง" หรือ "ข่าวปลอม" เท่านั้น
+
+### Input:
 {}
 
-จงจำแนกข่าวนี้ออกเป็นประเภทใดประเภทหนึ่งต่อไปนี้:
-ประเภท 1: ข่าวจริง
-ประเภท 2: ข่าวปลอม
-คำตอบที่ถูกต้องคือ: ประเภท """.format(news_to_check)
+### Response:
+""".format(news_to_check)
 
 inputs = tokenizer([prompt], return_tensors = "pt").to("cuda")
 
