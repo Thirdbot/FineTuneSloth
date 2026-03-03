@@ -23,7 +23,8 @@ prompt_template = """Below is an instruction that describes a task, paired with 
 {}"""
 
 dataset = load_from_disk(dataset_path)
-model_loader = LoadModel("unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
+#small thai model jojo-ai-mst/thai-opt350m-instruct
+model_loader = LoadModel("unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit")
 tokenizer = model_loader.get_tokenizer()
 
 builder = SlothDatasetBuilder(dataset=dataset,
@@ -62,7 +63,6 @@ trainer_runner = UnslothTrainer(model=model,
                )
 trainer_runner.train()
 
-#TODO
-# might use an unsloth's dataset gpt type conversation later.
-# find best parameter with wandb?
-# new feature
+#TODO might use an unsloth's dataset gpt type conversation later.
+#TODO find best parameter with wandb?
+#TODO new feature
