@@ -9,23 +9,25 @@ class UnslothTrainer:
     def __init__(self,model:FastLanguageModel=None,
                  tokenizer:PreTrainedTokenizerFast=None,
                  train_dataset:Union[Dataset,DatasetDict]=None,
-                 eval_dataset:Union[Dataset,DatasetDict]=None):
+                 eval_dataset:Union[Dataset,DatasetDict]=None,
+                 max_seq_length:int=256):
 
         self.output_dir = Path(__file__).parent.parent.absolute() / "output"
         self.model = model
         self.tokenizer = tokenizer
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
+        self.max_seq_length = max_seq_length
 
         self.args = TrainingArguments(
             per_device_train_batch_size=2,
             gradient_accumulation_steps=4,
-            warmup_steps=5,
+            warmup_ratio=0.05,
             num_train_epochs=1.0,
             learning_rate=5e-5,
             fp16= not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
-            logging_steps=1,
+            logging_steps=10,
             optim="adamw_8bit",
             weight_decay=0.05,
             lr_scheduler_type='cosine',
@@ -39,7 +41,7 @@ class UnslothTrainer:
             save_total_limit=2,
 
         )
-        self.response_template = "คำตอบที่ถูกต้องคือ: ประเภท"
+        self.response_template = "### Response:\n"
         self.collator = DataCollatorForCompletionOnlyLM(
             response_template=self.response_template,
             tokenizer=tokenizer,
@@ -68,8 +70,7 @@ class UnslothTrainer:
                 eval_dataset=self.eval_dataset,
                 tokenizer=self.tokenizer, #type: ignore
                 dataset_text_field="text", #type: ignore
-                max_seq_length=2048, #type: ignore
-                packing=True, #type: ignore
+                max_seq_length=self.max_seq_length, #type: ignore
                 args=self.args,
                 data_collator=self.collator,
             )
