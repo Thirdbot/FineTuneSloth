@@ -24,7 +24,7 @@ prompt_template = """Below is an instruction that describes a task, paired with 
 
 dataset = load_from_disk(dataset_path)
 model_loader = LoadModel("unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
-model,tokenizer = model_loader.get_model()
+tokenizer = model_loader.get_tokenizer()
 
 builder = SlothDatasetBuilder(dataset=dataset,
                               selected_columns=["Title","Verification_Status"],
@@ -32,8 +32,7 @@ builder = SlothDatasetBuilder(dataset=dataset,
                               selected_tokenizer=tokenizer)
 formatted = builder.format()
 print(formatted[0])
-max_token = builder.check_max_tokens()
-max_token = 256
+max_token = 256 if builder.check_max_tokens() <= 256 else 1024
 
 print(f"max token: {max_token}")
 
@@ -46,7 +45,7 @@ build = builder.build()
 builder.save_build(save_build_path.as_posix())
 
 # load full lora or Qlora if not Peft then create One else use one
-model,tokenizer = model_loader.get_model_lora() if model_loader.is_peft(model) else model_loader.get_model_Qlora()
+model,tokenizer = model_loader.get_modelLora() if model_loader.is_peft() else model_loader.get_modelQlora()
 
 dataset = load_from_disk(save_form_path)
 dataset_split = dataset.train_test_split(test_size=0.2)
@@ -59,11 +58,11 @@ trainer_runner = UnslothTrainer(model=model,
                tokenizer=tokenizer,
                train_dataset=train_dataset,
                eval_dataset=eval_dataset,
+               max_seq_length=max_token,
                )
 trainer_runner.train()
 
 #TODO
-# might need datacollation for train classication
 # might use an unsloth's dataset gpt type conversation later.
-# find best parameter with
+# find best parameter with wandb?
 # new feature
