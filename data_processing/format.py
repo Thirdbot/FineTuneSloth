@@ -62,7 +62,7 @@ class SlothDatasetBuilder:
 
             texts = []
             for row_values in zip(*column_data):
-                texts.append(self.prompt.format(*row_values+self.tokenizer.eos_token).strip())
+                texts.append((self.prompt.format(*row_values) + self.tokenizer.eos_token).strip())
 
             return {"text": texts}
 
