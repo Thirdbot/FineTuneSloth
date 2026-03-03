@@ -1,4 +1,3 @@
-from pathlib import Path
 from string import Formatter
 from datasets import DatasetDict, Dataset, load_from_disk
 from typing import Union
