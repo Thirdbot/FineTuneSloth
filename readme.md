@@ -1,7 +1,9 @@
 # FineTuneSloth
-## This project is under construction
+## FineTuneSloth is a project for detecting fake news in Thai language.
 
-## Preview at [link]
+
+### Preview at https://huggingface.co/spaces/thirdExec/thai_fakenews_detector 
+from (https://github.com/Thirdbot/ThaiFakeNews-Detector)
 ### Installations
 ```bash
 python -m venv environment
@@ -11,14 +13,14 @@ pip install -r requirements.txt
 
 ### Usage
 
-#### Training
+#### Training at root directory
 ```bash
-
+python main.py
 ```
 
-#### Deployment
+#### Inference at /inference
 ```bash
-
+python inference.py
 ```
 
 
