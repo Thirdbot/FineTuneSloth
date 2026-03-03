@@ -39,12 +39,12 @@ class UnslothTrainer:
             save_total_limit=2,
 
         )
-        # self.response_template = "คำตอบที่ถูกต้องคือ: ประเภท"
-        # self.collator = DataCollatorForCompletionOnlyLM(
-        #     response_template=self.response_template,
-        #     tokenizer=tokenizer,
-        #     mlm=False,
-        # )
+        self.response_template = "คำตอบที่ถูกต้องคือ: ประเภท"
+        self.collator = DataCollatorForCompletionOnlyLM(
+            response_template=self.response_template,
+            tokenizer=tokenizer,
+            mlm=False,
+        )
         self.results_path = Path(__file__).parent.parent.absolute() / "results"
 
     def train(self):
@@ -71,9 +71,9 @@ class UnslothTrainer:
                 max_seq_length=2048, #type: ignore
                 packing=False, #type: ignore
                 args=self.args,
-                # data_collator=self.collator,
+                data_collator=self.collator,
             )
-            trainer.train(resume_from_checkpoint= True)
+            trainer.train(resume_from_checkpoint= False)
 
             return trainer.save_model(self.output_dir.as_posix())
         except Exception as e:
