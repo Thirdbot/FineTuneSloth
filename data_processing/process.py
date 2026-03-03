@@ -10,7 +10,7 @@ from imblearn.under_sampling import RandomUnderSampler
 
 import pandas as pd
 
-from typing import Union
+from typing import Union, List
 
 from load import LoadDataset
 
@@ -77,9 +77,8 @@ class ProcessDataset:
             pd_data = self.dataset.to_pandas()
 
             if column_names is None:
-                for column in pd_data.columns:
-                   pd_data[column_names]=pd_data[column].astype(str).str.strip()
-                self.dataset = Dataset.from_pandas(pd_data, preserve_index=False)
+                print("Error Cleaning: column_names is None")
+                return None
 
             else:
 
@@ -96,13 +95,18 @@ class ProcessDataset:
         except Exception as e:
             print(f"Error Cleaning: {e}")
 
-    def drop_null(self):
+    def drop_null(self,column_names:list[str]=None):
         if self.dataset is None:
             print("Dataset not found")
             return None
+        if column_names is None:
+            print("Error Drop Null: column_names is None")
+            return None
         try:
+            pd_data = self.dataset.to_pandas()
             #dataset has empty
-            pd_data = self.dataset.to_pandas().dropna()
+            pd_data.dropna(subset=column_names)
+
             self.dataset = Dataset.from_pandas(pd_data,preserve_index=False)
             return self.dataset
         except Exception as e:
@@ -113,14 +117,15 @@ class ProcessDataset:
         if self.dataset is None:
             print("Dataset not found")
             return None
+        if column_names is None:
+            print("Error Drop Duplicate: column_names is None")
+            return None
+
         try:
             # dataset contains duplicate
             pd_data = self.dataset.to_pandas()
 
-            if column_names is None:
-                pd_data = pd_data.drop_duplicates()
-            else:
-                pd_data = pd_data.drop_duplicates(subset=column_names)
+            pd_data = pd_data.drop_duplicates(subset=column_names)
 
             self.dataset = Dataset.from_pandas(pd_data,preserve_index=False)
             return self.dataset
@@ -211,31 +216,58 @@ class ProcessDataset:
         except Exception as e:
             print(f"Error Saving Dataset: {e}")
 
+    def filter_label(self, label_names: List[str] = None, column_name: str = None):
+
+        if self.dataset is None:
+            print("Dataset not found")
+            return None
+        if label_names is None:
+            print("Error Filtering Label: label_names is None")
+            return None
+        if self.dataset.features is None:
+            print("Error Filtering Label: dataset.features is None")
+            return None
+
+        if column_name is None or column_name not in self.dataset.features:
+            print("Error Filtering Label: column_name not in dataset.features")
+            return None
+
+        try:
+            df = self.dataset.to_pandas()
+            df = df[df[column_name].isin(label_names)].reset_index(drop=True)
+            return Dataset.from_pandas(df)
+
+        except Exception as e:
+            print(f"Error Filtering Label: {e}")
+            return None
+
 #example single file
 
-# HomePath = Path(__file__).parent.parent.absolute()
-# save_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
-#
-# load_dataset = LoadDataset("EXt1/Thai-True-Fake-News").get_dataset()
-# process_dataset = ProcessDataset(load_dataset)
-# process_dataset.select_split('train')
-#
-# dataset = process_dataset.get_dataset()
-# print(f'before cleaning: {len(dataset)}')
-# process_dataset.check_balance_native('Verification_Status')
-#
-# process_dataset.drop_selected(['Unnamed: 0'])
-# process_dataset.clean_text(['Title','Verification_Status'])
-# process_dataset.drop_null()
-# process_dataset.drop_dupe(['Title'])
-# cleaned_dataset = process_dataset.get_dataset()
-# print(f'after cleaning: {len(cleaned_dataset)}')
-# process_dataset.check_balance_native('Verification_Status')
-#
-# process_dataset.balance_dataset('Title','Verification_Status',
-#                                 'under')
-# balance_dataset = process_dataset.get_dataset()
-# print(f'after balancing: {len(balance_dataset)}')
-# process_dataset.check_balance_native('Verification_Status')
-#
-# process_dataset.save_dataset(save_path.as_posix())
+HomePath = Path(__file__).parent.parent.absolute()
+save_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
+
+load_dataset = LoadDataset("EXt1/Thai-True-Fake-News").get_dataset()
+process_dataset = ProcessDataset(load_dataset)
+process_dataset.select_split('train')
+
+dataset = process_dataset.get_dataset()
+print(f'before cleaning: {len(dataset)}')
+process_dataset.check_balance_native('Verification_Status')
+
+process_dataset.drop_selected(['Unnamed: 0'])
+process_dataset.filter_label(['ข่าวจริง','ข่าวปลอม'],column_name='Verification_Status')
+process_dataset.clean_text(['Title','Verification_Status'])
+process_dataset.drop_null(['Title','Verification_Status'])
+# process_dataset.drop_dupe(['Title']) # drop duplicate is unsufficient
+
+cleaned_dataset = process_dataset.get_dataset()
+print(f'after cleaning: {len(cleaned_dataset)}')
+process_dataset.check_balance_native('Verification_Status')
+
+process_dataset.balance_dataset('Title','Verification_Status',
+                                'under')
+balance_dataset = process_dataset.get_dataset()
+print(f'after balancing: {len(balance_dataset)}')
+process_dataset.check_balance_native('Verification_Status')
+
+process_dataset.save_dataset(save_path.as_posix())
