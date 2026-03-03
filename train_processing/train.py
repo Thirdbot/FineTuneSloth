@@ -69,7 +69,7 @@ class UnslothTrainer:
                 tokenizer=self.tokenizer, #type: ignore
                 dataset_text_field="text", #type: ignore
                 max_seq_length=2048, #type: ignore
-                packing=False, #type: ignore
+                packing=True, #type: ignore
                 args=self.args,
                 data_collator=self.collator,
             )
