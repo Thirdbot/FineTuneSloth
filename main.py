@@ -11,18 +11,19 @@ dataset_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
 save_form_path = HomePath / 'dataset' / 'formatted_cleaned_dataset'
 save_build_path = HomePath / 'dataset' / 'build_dataset'
 
-prompt_template = """ข้อความข่าวมีดังนี้:
+prompt_template = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+คุณเป็น AI ผู้เชี่ยวชาญด้านการตรวจสอบข่าวภาษาไทย กรุณาวิเคราะห์หัวข้อข่าวต่อไปนี้และตอบว่าเป็น "ข่าวจริง" หรือ "ข่าวปลอม" เท่านั้น
+
+### Input:
 {}
 
-จงจำแนกข่าวนี้ออกเป็นประเภทใดประเภทหนึ่งต่อไปนี้:
-ประเภท 1: ข่าวจริง
-ประเภท 2: ข่าวปลอม
-
-คำตอบ
-คำตอบที่ถูกต้องคือ: ประเภท {}"""
+### Response:
+{}"""
 
 dataset = load_from_disk(dataset_path)
-model_loader = LoadModel("jojo-ai-mst/thai-opt350m-instruct")
+model_loader = LoadModel("unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
 model,tokenizer = model_loader.get_model()
 
 builder = SlothDatasetBuilder(dataset=dataset,
@@ -30,7 +31,7 @@ builder = SlothDatasetBuilder(dataset=dataset,
                               prompt=prompt_template,
                               selected_tokenizer=tokenizer)
 formatted = builder.format()
-# print(formatted[0])
+print(formatted[0])
 max_token = builder.check_max_tokens()
 max_token = 256
 
