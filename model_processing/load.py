@@ -73,6 +73,7 @@ class LoadModel:
                 r=self.r,
                 lora_alpha=self.alpha,
                 target_modules=self.target_mod,
+                bias="none",
                 lora_dropout=self.dropout,
                 use_gradient_checkpointing="unsloth"
             )
@@ -106,6 +107,7 @@ class LoadModel:
                 r=self.r,
                 lora_alpha=self.alpha,
                 target_modules=self.target_mod,
+                bias="none",
                 lora_dropout=self.dropout,
                 use_gradient_checkpointing="unsloth"
             )
