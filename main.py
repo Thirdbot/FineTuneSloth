@@ -54,7 +54,8 @@ dataset_split = dataset.train_test_split(test_size=0.2)
 train_dataset = dataset_split['train']
 eval_dataset = dataset_split['test']
 
-model_dir = Path(__file__).parent.absolute() / "output"
+merge_model = Path(__file__).parent.absolute() / "merged_adapter_weights"
+full_model = Path(__file__).parent.absolute() / "full_model_weights"
 
 trainer_runner = UnslothTrainer(model=model,
                tokenizer=tokenizer,
@@ -62,13 +63,19 @@ trainer_runner = UnslothTrainer(model=model,
                eval_dataset=eval_dataset,
                max_seq_length=max_token,
                )
-trainer = trainer_runner.train()
 
+# training-only quantized model and save only quantized
+# trainer = trainer_runner.train()
 # print(trainer.evaluate())
 
-# trainer.save_model(model_dir.as_posix())
+# trainer.save_model(merge_model.as_posix()) # model local save for merge with inference pretrained
 
-model_loader.push_hub(model_dir.as_posix(),'thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit','model')
+
+#save and push full model for hub
+trainer_runner.save_push(repo_id="thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit",output_dir=full_model.as_posix())
+
+# need full model for inference on hub, Run this if only pushing from save_push is not successful
+# model_loader.push_hub(full_model.as_posix(),'thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit','model')
 
 #TODO might use an unsloth's dataset gpt type conversation later.
 #TODO find best parameter with wandb?
