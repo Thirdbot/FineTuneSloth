@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Union
 from datasets import Dataset, DatasetDict
@@ -35,9 +36,7 @@ class UnslothTrainer:
             eval_strategy="steps",
             eval_steps=50,
             save_strategy="steps",
-            metric_for_best_model='eval_loss',
-            greater_is_better=False,
-            load_best_model_at_end=True,
+            load_best_model_at_end=False,
             save_total_limit=2,
             hub_private_repo=self.push_private
 
@@ -80,4 +79,39 @@ class UnslothTrainer:
             return trainer
         except Exception as e:
             print(f"Train Error:{e}")
+
+    def save_push(self, repo_id: str = None, output_dir: str = None):
+        if self.model is None:
+            print("Model not found")
+            return None
+        if self.tokenizer is None:
+            print("Tokenizer not found")
+            return None
+
+        try:
+            # Save merged full model locally (dequantizes LoRA into base weights)
+            print(f"Saving merged model to {output_dir} ...")
+            self.model.save_pretrained_merged(output_dir, self.tokenizer, save_method="merged_16bit")
+
+            # Strip bitsandbytes quantization_config so inference endpoints don't require it
+            config_path = Path(output_dir) / "config.json"
+            if config_path.exists():
+                with open(config_path) as f:
+                    cfg = json.load(f)
+                cfg.pop("quantization_config", None)
+                with open(config_path, "w") as f:
+                    json.dump(cfg, f, indent=2)
+
+            print("Local save complete.")
+        except Exception as e:
+            print(f"Save Error (local): {e}")
+            return None
+
+        try:
+            # Push merged full model to hub so inference providers can load it
+            print(f"Pushing merged model to hub: {repo_id} ...")
+            self.model.push_to_hub_merged(repo_id, self.tokenizer, save_method="merged_16bit", private=self.push_private)
+            print("Hub push complete.")
+        except Exception as e:
+            print(f"Save Error (hub push): {e}")
 
