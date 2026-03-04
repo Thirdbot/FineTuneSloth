@@ -1,12 +1,14 @@
-from huggingface_hub import file_exists
+from huggingface_hub import file_exists,upload_folder
 from huggingface_hub.errors import RepositoryNotFoundError, HfHubHTTPError
 from transformers import AutoTokenizer
 from unsloth import FastLanguageModel
+from huggingface_hub import HfApi
 
 class LoadModel:
     def __init__(self,repo_id:str,max_token:int=2048):
         self.repo_id = repo_id
         self.tokenizer = self._load_tokenizer()
+        self.model = None
         self.max_length = max_token
 
         # default lora config
@@ -14,6 +16,7 @@ class LoadModel:
         self.alpha = 64
         self.target_mod = ["q_proj", "k_proj", "v_proj", "o_proj","gate_proj", "up_proj", "down_proj"]
         self.dropout = 0
+        self.api = HfApi()
 
     def _load_tokenizer(self):
         try:
@@ -61,6 +64,9 @@ class LoadModel:
                 lora_dropout=self.dropout,
                 use_gradient_checkpointing="unsloth"
             )
+
+            self.model = model
+
             return model,tokenizer
 
         except RepositoryNotFoundError:
@@ -81,6 +87,9 @@ class LoadModel:
                 max_seq_length=self.max_length,
                 load_in_4bit=True
             )
+
+            self.model = model
+
             return model, tokenizer
 
         except RepositoryNotFoundError:
@@ -91,6 +100,28 @@ class LoadModel:
             return None
         except Exception as e:
             print(f"Error Loading Model: {e}")
+            return None
+
+    def push_hub(self,directory:str=None,repo_id:str=None,method:str=None):
+
+        if directory is None:
+            print("Please provide a directory to push to hub")
+            return None
+
+        if repo_id is None:
+            print("Please provide a repo_id to push to hub")
+            return None
+
+        if method is None:
+            print("Please provide a method to push to hub")
+            return None
+
+        try:
+            self.api.create_repo(repo_id=repo_id, repo_type=method, exist_ok=True)
+            return self.api.upload_folder(repo_id=repo_id, folder_path=directory, repo_type=method)
+
+        except Exception as e:
+            print(f"Error Pushing to Hub: {e}")
             return None
 
 
