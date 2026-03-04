@@ -102,27 +102,6 @@ class LoadModel:
             print(f"Error Loading Model: {e}")
             return None
 
-    def push_hub(self,directory:str=None,repo_id:str=None,method:str=None):
-
-        if directory is None:
-            print("Please provide a directory to push to hub")
-            return None
-
-        if repo_id is None:
-            print("Please provide a repo_id to push to hub")
-            return None
-
-        if method is None:
-            print("Please provide a method to push to hub")
-            return None
-
-        try:
-            self.api.create_repo(repo_id=repo_id, repo_type=method, exist_ok=True)
-            return self.api.upload_folder(repo_id=repo_id, folder_path=directory, repo_type=method)
-
-        except Exception as e:
-            print(f"Error Pushing to Hub: {e}")
-            return None
 
 
 
