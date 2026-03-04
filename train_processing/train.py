@@ -12,12 +12,12 @@ class UnslothTrainer:
                  eval_dataset:Union[Dataset,DatasetDict]=None,
                  max_seq_length:int=256):
 
-        self.output_dir = Path(__file__).parent.parent.absolute() / "output"
         self.model = model
         self.tokenizer = tokenizer
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
         self.max_seq_length = max_seq_length
+        self.push_private=False
 
         self.args = TrainingArguments(
             per_device_train_batch_size=2,
@@ -39,6 +39,7 @@ class UnslothTrainer:
             greater_is_better=False,
             load_best_model_at_end=True,
             save_total_limit=2,
+            hub_private_repo=self.push_private
 
         )
         self.response_template = "### Response:\n"
@@ -74,9 +75,9 @@ class UnslothTrainer:
                 args=self.args,
                 data_collator=self.collator,
             )
-            trainer.train(resume_from_checkpoint= False)
+            trainer.train(resume_from_checkpoint= True)
 
-            return trainer.save_model(self.output_dir.as_posix())
+            return trainer
         except Exception as e:
             print(f"Train Error:{e}")
 
