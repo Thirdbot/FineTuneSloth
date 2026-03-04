@@ -54,6 +54,7 @@ dataset_split = dataset.train_test_split(test_size=0.2)
 train_dataset = dataset_split['train']
 eval_dataset = dataset_split['test']
 
+model_dir = Path(__file__).parent.absolute() / "output"
 
 trainer_runner = UnslothTrainer(model=model,
                tokenizer=tokenizer,
@@ -61,7 +62,13 @@ trainer_runner = UnslothTrainer(model=model,
                eval_dataset=eval_dataset,
                max_seq_length=max_token,
                )
-trainer_runner.train()
+trainer = trainer_runner.train()
+
+# print(trainer.evaluate())
+
+# trainer.save_model(model_dir.as_posix())
+
+model_loader.push_hub(model_dir.as_posix(),'thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit','model')
 
 #TODO might use an unsloth's dataset gpt type conversation later.
 #TODO find best parameter with wandb?
