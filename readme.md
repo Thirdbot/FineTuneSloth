@@ -4,11 +4,21 @@
 
 ### Preview at https://huggingface.co/spaces/thirdExec/thai_fakenews_detector 
 from (https://github.com/Thirdbot/ThaiFakeNews-Detector)
+
+### Prequisites
+- Python 3.12.3
+- HuggingFace Token
+- 
 ### Installations
 ```bash
 python -m venv environment
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+### Setup For pushing to HuggingFace
+```bash
+huggingface-cli login
 ```
 
 ### Usage
