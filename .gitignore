@@ -3,3 +3,5 @@
 unsloth_compiled_cache
 /results
 /output
+/full_model_weights
+/merged_adapter_weights
