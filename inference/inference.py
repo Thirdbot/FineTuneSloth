@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
 from handler import EndpointHandler
 
+from pathlib import Path
+
 load_dotenv()
 
 ENDPOINT_URL = os.getenv("ENDPOINT_URL")
@@ -49,6 +51,8 @@ for i, (question, expected) in enumerate(student_questions, 1):
 print("\n" + "="*80)
 
 # test endpoint
-my_handler = EndpointHandler(path="/home/third/Desktop/FinetuneSloth/full_model_weights")
+Home_path = Path(__file__).parent.parent.absolute()
+full_model_path = Home_path / "full_model_weights"
+my_handler = EndpointHandler(path=full_model_path.as_posix())
 data = {"inputs": "ธนาคารแห่งประเทศไทยขึ้นอัตราดอกเบี้ยนโยบาย 0.25%"}
 print(my_handler(data))
