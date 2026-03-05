@@ -65,14 +65,15 @@ trainer_runner = UnslothTrainer(model=model,
                )
 
 # training-only quantized model and save only quantized
-# trainer = trainer_runner.train()
+trainer = trainer_runner.train()
 # print(trainer.evaluate())
 
 # trainer.save_model(merge_model.as_posix()) # model local save for merge with inference pretrained
 
 
 #save and push full model for hub
-trainer_runner.save_push(repo_id="thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit",output_dir=full_model.as_posix())
+# trainer_runner.save(output_dir=full_model.as_posix())
+trainer_runner.push(repo_id="thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit",output_dir=full_model.as_posix())
 
 # need full model for inference on hub, Run this if only pushing from save_push is not successful
 # model_loader.push_hub(full_model.as_posix(),'thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit','model')
