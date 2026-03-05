@@ -1,50 +1,26 @@
-from unsloth import FastLanguageModel
-import torch
+import os
 
-HUB_MODEL_ID = "thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit"
+from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
+from handler import EndpointHandler
 
-# If the hub repo contains adapter_config.json it is a PEFT-only repo
-def _load_model():
+load_dotenv()
 
-    print(f"Loading model from {HUB_MODEL_ID}")
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        HUB_MODEL_ID,
-        load_in_4bit=True,
-    )
-    FastLanguageModel.for_inference(model)
-    return model, tokenizer
+ENDPOINT_URL = os.getenv("ENDPOINT_URL")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
-
-model, tokenizer = _load_model()
+client = InferenceClient(base_url=ENDPOINT_URL, token=HF_TOKEN)
 
 
 def predict_label(title: str) -> str:
-    prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+    response = client.text_generation(
+        title,
+        max_new_tokens=10,
+        temperature=0.1,
+        do_sample=True,
+    )
 
-    ### Instruction:
-    คุณเป็น AI ผู้เชี่ยวชาญด้านการตรวจสอบข่าวภาษาไทย กรุณาวิเคราะห์หัวข้อข่าวต่อไปนี้และตอบว่าเป็น "ข่าวจริง" หรือ "ข่าวปลอม" เท่านั้น
-
-    ### Input:
-    {}
-
-    ### Response:
-    """
-
-    prompt = prompt.format(title)
-    inputs = tokenizer([prompt], return_tensors="pt").to("cuda")
-
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=10,
-            temperature=0.1,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
-        )
-
-    generated = tokenizer.decode(
-        outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
-    ).strip()
+    generated = response.split("### Response:")[-1].strip()
 
     if "จริง" in generated:
         return "ข่าวจริง"
@@ -71,3 +47,8 @@ for i, (question, expected) in enumerate(student_questions, 1):
     print(f"   Expected  : {expected}")
     print(f"   Predicted : {prediction}  {status}")
 print("\n" + "="*80)
+
+# test endpoint
+my_handler = EndpointHandler(path="/home/third/Desktop/FinetuneSloth/full_model_weights")
+data = {"inputs": "ธนาคารแห่งประเทศไทยขึ้นอัตราดอกเบี้ยนโยบาย 0.25%"}
+print(my_handler(data))
