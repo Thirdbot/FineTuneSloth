@@ -118,7 +118,7 @@ class UnslothTrainer:
                 shutil.copy(handler_src, Path(output_dir) / "handler.py")
 
             self.api.create_repo(repo_id=repo_id, repo_type=repo_type, private=private,exist_ok=True)
-            return upload_folder(repo_id=repo_id, folder_path=output_dir, repo_type="model",delete_patterns="*")
+            return upload_folder(repo_id=repo_id, folder_path=output_dir, repo_type="model",delete_patterns="*.safetensors")
         except Exception as e:
             print(f"Error pushing to hub: {e}")
             return None
