@@ -2,7 +2,6 @@ from huggingface_hub import file_exists,upload_folder
 from huggingface_hub.errors import RepositoryNotFoundError, HfHubHTTPError
 from transformers import AutoTokenizer
 from unsloth import FastLanguageModel
-from huggingface_hub import HfApi
 
 class LoadModel:
     def __init__(self,repo_id:str,max_token:int=2048):
@@ -16,7 +15,6 @@ class LoadModel:
         self.alpha = 64
         self.target_mod = ["q_proj", "k_proj", "v_proj", "o_proj","gate_proj", "up_proj", "down_proj"]
         self.dropout = 0
-        self.api = HfApi()
 
     def _load_tokenizer(self):
         try:
