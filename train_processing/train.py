@@ -1,10 +1,13 @@
 import json
+import shutil
 from pathlib import Path
 from typing import Union
 from datasets import Dataset, DatasetDict
 from transformers import PreTrainedTokenizerFast, TrainingArguments
+from huggingface_hub import upload_folder,HfApi
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+
 
 class UnslothTrainer:
     def __init__(self,model:FastLanguageModel=None,
@@ -18,6 +21,7 @@ class UnslothTrainer:
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
         self.max_seq_length = max_seq_length
+        self.api = HfApi()
         self.push_private=False
 
         self.args = TrainingArguments(
@@ -80,7 +84,7 @@ class UnslothTrainer:
         except Exception as e:
             print(f"Train Error:{e}")
 
-    def save_push(self, repo_id: str = None, output_dir: str = None):
+    def save(self, output_dir: str = None):
         if self.model is None:
             print("Model not found")
             return None
@@ -107,11 +111,15 @@ class UnslothTrainer:
             print(f"Save Error (local): {e}")
             return None
 
+    def push(self,repo_id:str=None,repo_type:str="model",private:bool=False,output_dir:str=None):
         try:
-            # Push merged full model to hub so inference providers can load it
-            print(f"Pushing merged model to hub: {repo_id} ...")
-            self.model.push_to_hub_merged(repo_id, self.tokenizer, save_method="merged_16bit", private=self.push_private)
-            print("Hub push complete.")
+            handler_src = Path(__file__).parent.parent / "inference" / "handler.py"
+            if handler_src.exists():
+                shutil.copy(handler_src, Path(output_dir) / "handler.py")
+
+            self.api.create_repo(repo_id=repo_id, repo_type=repo_type, private=private,exist_ok=True)
+            return upload_folder(repo_id=repo_id, folder_path=output_dir, repo_type="model",delete_patterns="*")
         except Exception as e:
-            print(f"Save Error (hub push): {e}")
+            print(f"Error pushing to hub: {e}")
+            return None
 
