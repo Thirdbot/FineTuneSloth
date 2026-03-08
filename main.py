@@ -11,6 +11,13 @@ dataset_path = HomePath / 'dataset' / 'raw_cleaned_dataset'
 save_form_path = HomePath / 'dataset' / 'formatted_cleaned_dataset'
 save_build_path = HomePath / 'dataset' / 'build_dataset'
 
+
+
+dataset = load_from_disk(dataset_path)
+#small thai model jojo-ai-mst/thai-opt350m-instruct
+model_loader = LoadModel("unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit")
+tokenizer = model_loader.get_tokenizer()
+
 prompt_template = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
 ### Instruction:
@@ -21,11 +28,6 @@ prompt_template = """Below is an instruction that describes a task, paired with 
 
 ### Response:
 {}"""
-
-dataset = load_from_disk(dataset_path)
-#small thai model jojo-ai-mst/thai-opt350m-instruct
-model_loader = LoadModel("unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit")
-tokenizer = model_loader.get_tokenizer()
 
 builder = SlothDatasetBuilder(dataset=dataset,
                               selected_columns=["Title","Verification_Status"],
@@ -65,7 +67,7 @@ trainer_runner = UnslothTrainer(model=model,
                )
 
 # training-only quantized model and save only quantized
-trainer = trainer_runner.train()
+# trainer = trainer_runner.train()
 # print(trainer.evaluate())
 
 # trainer.save_model(merge_model.as_posix()) # model local save for merge with inference pretrained
@@ -74,9 +76,6 @@ trainer = trainer_runner.train()
 #save and push full model for hub
 # trainer_runner.save(output_dir=full_model.as_posix())
 trainer_runner.push(repo_id="thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit",output_dir=full_model.as_posix())
-
-# need full model for inference on hub, Run this if only pushing from save_push is not successful
-# model_loader.push_hub(full_model.as_posix(),'thirdExec/Qwen2.5-1.5B-Instruct-ThaiFakeNews-bnb-4bit','model')
 
 #TODO might use an unsloth's dataset gpt type conversation later.
 #TODO find best parameter with wandb?
