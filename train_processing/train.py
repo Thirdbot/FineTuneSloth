@@ -4,10 +4,12 @@ from pathlib import Path
 from typing import Union
 from datasets import Dataset, DatasetDict
 from transformers import PreTrainedTokenizerFast, TrainingArguments
-from huggingface_hub import upload_folder,HfApi
+from huggingface_hub import upload_large_folder, HfApi
 from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 class UnslothTrainer:
     def __init__(self,model:FastLanguageModel=None,
@@ -28,7 +30,7 @@ class UnslothTrainer:
             per_device_train_batch_size=2,
             gradient_accumulation_steps=4,
             warmup_ratio=0.05,
-            num_train_epochs=1.0,
+            num_train_epochs=1.2,
             learning_rate=5e-5,
             fp16= not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
@@ -78,7 +80,7 @@ class UnslothTrainer:
                 args=self.args,
                 data_collator=self.collator,
             )
-            trainer.train(resume_from_checkpoint= True)
+            trainer.train(resume_from_checkpoint= False)
 
             return trainer
         except Exception as e:
@@ -118,7 +120,7 @@ class UnslothTrainer:
                 shutil.copy(handler_src, Path(output_dir) / "handler.py")
 
             self.api.create_repo(repo_id=repo_id, repo_type=repo_type, private=private,exist_ok=True)
-            return upload_folder(repo_id=repo_id, folder_path=output_dir, repo_type="model",delete_patterns="*.safetensors")
+            return upload_large_folder(repo_id=repo_id, folder_path=output_dir, repo_type="model")
         except Exception as e:
             print(f"Error pushing to hub: {e}")
             return None
