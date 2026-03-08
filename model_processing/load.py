@@ -46,7 +46,7 @@ class LoadModel:
 
 
         try:
-
+            print("load model and create LoRA")
             model,tokenizer = FastLanguageModel.from_pretrained(
                 self.repo_id,
                 max_seq_length=self.max_length,
@@ -80,6 +80,7 @@ class LoadModel:
     # load existing PEFT adapter from repo (no new LoRA created)
     def get_modelLora(self):
         try:
+            print("Loading LoRA from repo")
             model, tokenizer = FastLanguageModel.from_pretrained(
                 self.repo_id,
                 max_seq_length=self.max_length,
